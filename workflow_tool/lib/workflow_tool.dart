@@ -98,11 +98,11 @@ enum CPU {
 }
 
 enum Target {
-  armv7Generic(
-    arch: Arch.arm,
-    name: 'armv7-generic',
-    triple: 'armv7-linux-gnueabihf',
-  ),
+//   armv7Generic(
+//     arch: Arch.arm,
+//     name: 'armv7-generic',
+//     triple: 'armv7-linux-gnueabihf',
+//   ),
   aarch64Generic(
     arch: Arch.arm64,
     name: 'aarch64-generic',
@@ -112,42 +112,42 @@ enum Target {
     arch: Arch.x64,
     name: 'x64-generic',
     triple: 'x86_64-linux-gnu',
-  ),
-  pi3(
-    arch: Arch.arm,
-    cpu: CPU.pi3,
-    name: 'pi3',
-    triple: 'armv7-linux-gnueabihf',
-  ),
-  pi3_64(
-    arch: Arch.arm64,
-    cpu: CPU.pi3,
-    name: 'pi3-64',
-    triple: 'aarch64-linux-gnu',
-  ),
-  pi4(
-    arch: Arch.arm,
-    cpu: CPU.pi4,
-    name: 'pi4',
-    triple: 'armv7-linux-gnueabihf',
-  ),
-  pi4_64(
-    arch: Arch.arm64,
-    cpu: CPU.pi4,
-    name: 'pi4-64',
-    triple: 'aarch64-linux-gnu',
-  ),
-  pi5_64(
-    arch: Arch.arm64,
-    cpu: CPU.pi5,
-    name: 'pi5-64',
-    triple: 'aarch64-linux-gnu',
-  ),
-  riscv64(
-    arch: Arch.riscv64,
-    name: 'riscv64-generic',
-    triple: 'riscv64-linux-gnu',
   );
+//   pi3(
+//     arch: Arch.arm,
+//     cpu: CPU.pi3,
+//     name: 'pi3',
+//     triple: 'armv7-linux-gnueabihf',
+//   ),
+//   pi3_64(
+//     arch: Arch.arm64,
+//     cpu: CPU.pi3,
+//     name: 'pi3-64',
+//     triple: 'aarch64-linux-gnu',
+//   ),
+//   pi4(
+//     arch: Arch.arm,
+//     cpu: CPU.pi4,
+//     name: 'pi4',
+//     triple: 'armv7-linux-gnueabihf',
+//   ),
+//   pi4_64(
+//     arch: Arch.arm64,
+//     cpu: CPU.pi4,
+//     name: 'pi4-64',
+//     triple: 'aarch64-linux-gnu',
+//   ),
+//   pi5_64(
+//     arch: Arch.arm64,
+//     cpu: CPU.pi5,
+//     name: 'pi5-64',
+//     triple: 'aarch64-linux-gnu',
+//   ),
+//   riscv64(
+//     arch: Arch.riscv64,
+//     name: 'riscv64-generic',
+//     triple: 'riscv64-linux-gnu',
+//   );
 
   const Target({
     this.os = OS.linux,
@@ -303,13 +303,13 @@ Object generateMatrix() {
 
   final targets = Target.values;
 
-  final flavors = Flavor.values;
+  final flavors = [Flavor.release];
   final runtimeModes = RuntimeMode.values;
   final aotRuntimeModes = runtimeModes.where((mode) => mode.isAOT).toList();
   final runners = {
     GithubRunner.ubuntuLatest,
-    GithubRunner.macos15Intel,
-    GithubRunner.windows2022,
+    // GithubRunner.macos15Intel,
+    // GithubRunner.windows2022,
   };
 
   for (final target in targets) {
