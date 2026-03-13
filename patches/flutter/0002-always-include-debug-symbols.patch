@@ -1,0 +1,43 @@
+From 9d328ce97e8e6620ce977db89bfb0f38de13bda7 Mon Sep 17 00:00:00 2001
+From: Hannes Winkler <hanneswinkler2000@web.de>
+Date: Thu, 22 Jun 2023 16:30:00 +0000
+Subject: [PATCH] always include debug symbols
+
+Always build with `-ggdb -fdebug-default-version=4` by default.
+Symbols are stripped later anyway and they're still useful for debugging.
+---
+ engine/src/build/config/compiler/BUILD.gn | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/engine/src/build/config/compiler/BUILD.gn b/engine/src/build/config/compiler/BUILD.gn
+index dce3e27efe0..9d13be241e5 100644
+--- a/engine/src/build/config/compiler/BUILD.gn
++++ b/engine/src/build/config/compiler/BUILD.gn
+@@ -1146,7 +1146,7 @@ config("symbols") {
+       ldflags = [ "-gsource-map" ]
+     }
+   } else {
+-    cflags = [ "-g2" ]
++    cflags = [ "-ggdb", "-fdebug-default-version=4" ]
+     if (is_apple) {
+       swiftflags = [ "-g" ]
+     }
+@@ -1158,13 +1158,13 @@ config("minimal_symbols") {
+     # Linker symbols for backtraces only.
+     ldflags = [ "/DEBUG" ]
+   } else {
+-    cflags = [ "-g1" ]
++    cflags = [ "-ggdb", "-fdebug-default-version=4" ]
+   }
+ }
+ 
+ config("no_symbols") {
+   if (!is_win) {
+-    cflags = [ "-g0" ]
++    cflags = [ "-ggdb", "-fdebug-default-version=4" ]
+   }
+ }
+ 
+-- 
+2.50.1 (Apple Git-155)
+
