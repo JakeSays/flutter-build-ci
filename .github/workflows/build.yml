@@ -187,7 +187,6 @@ jobs:
           ./install-sysroot.py --arch=arm
           ./install-sysroot.py --arch=arm64
           ./install-sysroot.py --arch=amd64
-          ./install-sysroot.py --arch=riscv64
 
       - name: Delete unneeded dependencies
         if: steps.cache-lookup.outputs.cache-hit != 'true'
@@ -336,17 +335,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ninja-build
-
-      - name: Install dependencies (MacOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew install ninja
-
-      - name: Install dependencies (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          choco install ninja
 
       - name: Cache depot tools
         id: cache-depot-tools
@@ -682,52 +670,22 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: engine-${{ matrix.artifact-name }}-debug_unopt
-          path: debug_unopt
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: engine-${{ matrix.artifact-name }}-debug
-          path: debug
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: engine-${{ matrix.artifact-name }}-profile
-          path: profile
-
-      - uses: actions/download-artifact@v4
-        with:
           name: engine-${{ matrix.artifact-name }}-release
           path: release
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: gen-snapshot-Linux-X64-${{ matrix.artifact-name }}-profile
-          path: linux-gen-snapshot-profile
 
       - uses: actions/download-artifact@v4
         with:
           name: gen-snapshot-Linux-X64-${{ matrix.artifact-name }}-release
           path: linux-gen-snapshot-release
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: gen-snapshot-macOS-X64-${{ matrix.artifact-name }}-profile
-          path: macos-gen-snapshot-profile
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: gen-snapshot-macOS-X64-${{ matrix.artifact-name }}-release
-          path: macos-gen-snapshot-release
-
       - name: Package artifacts
         run: |
           mkdir -p pkg
 
           pushd pkg
-          mv ../debug_unopt/libflutter_engine.so ./libflutter_engine.so.debug_unopt
-          mv ../debug/libflutter_engine.so ./libflutter_engine.so.debug
-          mv ../profile/libflutter_engine.so ./libflutter_engine.so.profile
+          # mv ../debug_unopt/libflutter_engine.so ./libflutter_engine.so.debug_unopt
+          # mv ../debug/libflutter_engine.so ./libflutter_engine.so.debug
+          # mv ../profile/libflutter_engine.so ./libflutter_engine.so.profile
           mv ../release/libflutter_engine.so ./libflutter_engine.so.release
           mv ../universal/flutter_embedder.h ./flutter_embedder.h
           mv ../universal/icudtl.dat ./icudtl.dat
@@ -736,10 +694,10 @@ jobs:
 
           # We previously copied <build-dir>/clang_x64/gen_snapshot to <build-dir>/gen_snapshot,
           # so we don't need the clang_x64 part here.
-          mv ../linux-gen-snapshot-profile/gen_snapshot ./gen_snapshot_linux_x64_profile
+          # mv ../linux-gen-snapshot-profile/gen_snapshot ./gen_snapshot_linux_x64_profile
           mv ../linux-gen-snapshot-release/gen_snapshot ./gen_snapshot_linux_x64_release
-          mv ../macos-gen-snapshot-profile/gen_snapshot ./gen_snapshot_macos_x64_profile
-          mv ../macos-gen-snapshot-release/gen_snapshot ./gen_snapshot_macos_x64_release
+          # mv ../macos-gen-snapshot-profile/gen_snapshot ./gen_snapshot_macos_x64_profile
+          # mv ../macos-gen-snapshot-release/gen_snapshot ./gen_snapshot_macos_x64_release
 
           # The github actions artifact uploader/downloader don't keep the file permissions, so we need to mak
           # the binaries executable again.
@@ -773,393 +731,10 @@ jobs:
             pkg/gen_snapshot_macos_x64_profile
             pkg/gen_snapshot_macos_x64_release
 
-  build-app:
-    name: "Build test app"
-    runs-on: ${{ matrix.os }}
-    needs: [resolve-version, build]
-    if: false
-    strategy:
-      matrix:
-        os:
-          - macos-15-intel
-          - ubuntu-latest
-          - windows-2022
-        artifact-name:
-          - armv7-generic
-          - aarch64-generic
-          - x64-generic
-          - pi3
-          - pi3-64
-          - pi4
-          - pi4-64
-          - riscv64-generic
-        flavor:
-          - debug_unopt
-          - debug
-          - profile
-          - release
-
-        exclude:
-          - artifact-name: pi3
-            flavor: debug_unopt
-          - artifact-name: pi3
-            flavor: debug
-
-          - artifact-name: pi3-64
-            flavor: debug_unopt
-          - artifact-name: pi3-64
-            flavor: debug
-
-          - artifact-name: pi4
-            flavor: debug_unopt
-          - artifact-name: pi4
-            flavor: debug
-
-          - artifact-name: pi4-64
-            flavor: debug_unopt
-          - artifact-name: pi4-64
-            flavor: debug
-
-        include:
-          - flavor: debug_unopt
-            runtime-mode: debug
-            is-aot: false
-            runtime-mode-flags: "--debug-unoptimized"
-
-          - flavor: debug
-            runtime-mode: debug
-            is-aot: false
-            runtime-mode-flags: "--debug"
-
-          - flavor: profile
-            runtime-mode: profile
-            is-aot: true
-            runtime-mode-flags: "--profile"
-
-          - flavor: release
-            runtime-mode: release
-            is-aot: true
-            runtime-mode-flags: "--release"
-
-          - artifact-name: pi3
-            arch: armv7
-            generic-arch-artifact-name: armv7-generic
-            target-flags: "--arch=arm --cpu=pi3"
-
-          - artifact-name: pi3-64
-            arch: aarch64
-            generic-arch-artifact-name: aarch64-generic
-            target-flags: "--arch=arm64 --cpu=pi3"
-
-          - artifact-name: pi4
-            arch: armv7
-            generic-arch-artifact-name: armv7-generic
-            target-flags: "--arch=arm --cpu=pi4"
-
-          - artifact-name: pi4-64
-            arch: aarch64
-            generic-arch-artifact-name: aarch64-generic
-            target-flags: "--arch=arm64 --cpu=pi4"
-
-          - artifact-name: armv7-generic
-            arch: armv7
-            generic-arch-artifact-name: armv7-generic
-            target-flags: "--arch=arm --cpu=generic"
-
-          - artifact-name: aarch64-generic
-            arch: aarch64
-            generic-arch-artifact-name: aarch64-generic
-            target-flags: "--arch=arm64 --cpu=pi3"
-
-          - artifact-name: x64-generic
-            arch: x64
-            generic-arch-artifact-name: x64-generic
-            target-flags: "--arch=x64"
-
-          - os: macos-15-intel
-            gen-snapshot-name: "gen_snapshot"
-          - os: ubuntu-latest
-            gen-snapshot-name: "gen_snapshot"
-          - os: windows-2022
-            gen-snapshot-name: "gen_snapshot.exe"
-    steps:
-      - uses: actions/checkout@v4
-
-      # TODO: Use the exact flutter version here
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          flutter-version: ${{ needs.resolve-version.outputs.semver }}
-          cache: true
-
-      - name: Determine flutter SDK path
-        run: |
-          FLUTTER_SDK_PATH=$(dirname $(dirname $(which flutter)))
-
-          echo flutter sdk path: "$FLUTTER_SDK_PATH"
-
-          echo "FLUTTER_SDK_PATH=$FLUTTER_SDK_PATH" >> $GITHUB_ENV
-
-      - name: Install flutterpi_tool
-        run: |
-          flutter pub global activate flutterpi_tool
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: universal
-          path: universal
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: engine-${{ matrix.artifact-name }}-${{ matrix.flavor }}
-          path: engine
-
-      - uses: actions/download-artifact@v4
-        if: ${{ matrix.is-aot }}
-        with:
-          name: gen-snapshot-${{ runner.os }}-${{ runner.arch }}-${{ matrix.generic-arch-artifact-name }}-${{ matrix.flavor }}
-          path: gen-snapshot
-
-      # Seems like this is necessary. Maybe it's not if we use a tar-file instead.
-      - name: Make binaries executable
-        run: |
-          chmod +x \
-            ./engine/libflutter_engine.so \
-            ${{ matrix.is-aot && format('./gen-snapshot/{0}', matrix.gen-snapshot-name) || '' }}
-
-      # Show the complete file tree, and print all metadata (permissions, owner, group, filesize, last modification date)
-      - name: Show file tree
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get install -y tree
-          tree -apugshDF
-
-      - working-directory: test_app
-        if: false
-        run: |
-          flutter pub get
-          flutter build bundle
-          cp ../engine/libflutter_engine.so build/flutter_assets/libflutter_engine.so
-          cp ../universal/icudtl.dat build/flutter_assets/
-
-      - name: Build AOT bundle
-        if: matrix.is-aot && false
-        working-directory: test_app
-        run: |
-          $FLUTTER_SDK_PATH/bin/cache/dart-sdk/bin/dart \
-            $FLUTTER_SDK_PATH/bin/cache/dart-sdk/bin/snapshots/frontend_server.dart.snapshot \
-            --sdk-root $FLUTTER_SDK_PATH/bin/cache/artifacts/engine/common/flutter_patched_sdk${{ matrix.runtime-mode == 'release' && '_product' || '' }} \
-            --target=flutter \
-            --aot --tfa \
-            -Ddart.vm.product=${{ matrix.runtime-mode == 'release' && 'true' || 'false' }} \
-            -Ddart.vm.profile=${{ matrix.runtime-mode == 'profile' && 'true' || 'false' }} \
-            --packages .dart_tool/package_config.json \
-            --output-dill build/kernel_snapshot.dill \
-            --verbose \
-            --depfile build/kernel_snapshot.d \
-            package:test_app/main.dart
-
-          ../gen-snapshot/${{ matrix.gen-snapshot-name }} \
-            --deterministic \
-            --snapshot_kind=app-aot-elf \
-            --elf=build/flutter_assets/app.so \
-            --strip \
-            ${{ matrix.arch == 'armv7' && '--sim-use-hardfp' || '' }} \
-            --verbose \
-            build/kernel_snapshot.dill
-
-      - name: Copy asset bundle
-        if: false
-        run: |
-          cp -r test_app/build/flutter_assets app-assets
-          rm -rf test_app/build
-
-      - name: run `pub get`
-        working-directory: test_app
-        run: |
-          flutter pub get
-
-      # The Flutter Tool supports Bash on Windows, but dart global executables do not.
-      # We need to either invoke flutterpi_tool using `flutterpi_tool.bat` if we're on Bash & Windows,
-      # or we use powershell.
-      # I opted for powershell because that seemed like the safer option.
-      - name: Build test_app using flutterpi_tool (Unix)
-        if: runner.os != 'Windows'
-        working-directory: test_app
-        run: |
-          flutterpi_tool \
-            build ${{ matrix.target-flags }} ${{ matrix.runtime-mode-flags }} \
-            --verbose \
-            --github-artifacts-repo ${{ github.repository }} \
-            --github-artifacts-runid ${{ github.run_id }} \
-            --github-artifacts-auth-token ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build test_app using flutterpi_tool (Windows)
-        if: runner.os == 'Windows'
-        working-directory: test_app
-        shell: pwsh
-        run: |
-          flutterpi_tool `
-            build ${{ matrix.target-flags }} ${{ matrix.runtime-mode-flags }} `
-            --verbose `
-            --github-artifacts-repo ${{ github.repository }} `
-            --github-artifacts-runid ${{ github.run_id }} `
-            --github-artifacts-auth-token ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Package app assets
-        working-directory: test_app
-        run: |
-          cp -r build/flutter_assets ../app-assets
-
-      - name: Upload app assets
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ runner.os }}-${{ matrix.artifact-name }}-${{ matrix.flavor }}-app-assets
-          path: app-assets
-
-  test-app:
-    name: "Test app on a Raspberry Pi"
-    runs-on: ${{ matrix.runner }}
-    needs: [build-app]
-    if: false
-    strategy:
-      matrix:
-        os:
-          - Linux
-          - macOS
-          - Windows
-        artifact-name:
-          # - pi3
-          - pi3-64
-          # - pi4
-          - pi4-64
-          # - armv7-generic
-          - aarch64-generic
-          # - x64-generic
-          - riscv64-generic
-        flavor:
-          - debug_unopt
-          - debug
-          - profile
-          - release
-        exclude:
-          - artifact-name: pi3-64
-            flavor: debug_unopt
-          - artifact-name: pi3-64
-            flavor: debug
-
-          - artifact-name: pi4-64
-            flavor: debug_unopt
-          - artifact-name: pi4-64
-            flavor: debug
-
-        include:
-          - flavor: debug_unopt
-            runtime-mode: debug
-          - flavor: debug
-            runtime-mode: debug
-          - flavor: profile
-            runtime-mode: profile
-          - flavor: release
-            runtime-mode: release
-
-          # - artifact-name: pi3
-          # runner: pi4-32
-          - artifact-name: pi3-64
-            runner: pi4-64
-          # - artifact-name: pi4
-          # runner: pi4-32
-          - artifact-name: pi4-64
-            runner: pi4-64
-          # - artifact-name: armv7-generic
-          # runner: pi4-32
-          - artifact-name: aarch64-generic
-            runner: pi4-64
-
-          # - artifact-name: x64-generic
-          #   runner: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: ${{ matrix.os }}-${{ matrix.artifact-name }}-${{ matrix.flavor }}-app-assets
-          path: app
-
-      - uses: actions/checkout@v4
-        with:
-          repository: ardera/flutter-pi
-          path: flutter-pi
-
-      - name: Install dependencies
-        if: runner.environment == 'github-hosted'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake ninja-build libgl1-mesa-dev libgles2-mesa-dev libegl1-mesa-dev libdrm-dev libgbm-dev fonts-liberation fontconfig libsystemd-dev libinput-dev libudev-dev libxkbcommon-dev
-
-      - name: Configure
-        working-directory: flutter-pi
-        run: |
-          cmake -GNinja -DCMAKE_BUILD_TYPE=Debug -S. -Bbuild
-
-      - name: Build
-        working-directory: flutter-pi/build
-        run: ninja
-
-      # The app should quit with exit code 0 by itself.
-      - name: Run app
-        timeout-minutes: 3
-        run: |
-          flutter-pi/build/flutter-pi \
-            ${{ (matrix.runtime-mode == 'release' && '--release') || (matrix.runtime-mode == 'profile' && '--profile') || '' }} \
-            --dummy-display --dummy-display-size 800,600 \
-            app
-
-  push-old-repo:
-    name: "Push binaries to old engine binaries repo"
-    runs-on: ubuntu-latest
-    needs: [resolve-version, package]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/checkout@v4
-        with:
-          repository: ardera/flutter-engine-binaries-for-arm
-          token: ${{ secrets.OLD_ENGINE_BINARIES_REPO_TOKEN }}
-          path: engine-binaries
-          ref: main
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: armv7-generic
-          path: engine-binaries/arm
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: aarch64-generic
-          path: engine-binaries/arm64
-
-      - working-directory: engine-binaries
-        run: |
-          mv arm/flutter_embedder.h flutter_embedder.h
-          rm arm64/flutter_embedder.h
-          rm arm/*.debug_unopt
-          rm arm64/*.debug_unopt
-
-      - name: Commit new stable engine version
-        uses: EndBug/add-and-commit@v9
-        with:
-          default_author: github_actions
-          cwd: ./engine-binaries
-          message: "update engine binaries for flutter ${{ needs.resolve-version.outputs.semver }}"
-          tag: engine_${{ needs.resolve-version.outputs.engine-hash }} --force
-          tag_push: "--force"
-          fetch: false
-          push: ${{ needs.resolve-version.outputs.is-stable && !startsWith(github.ref, 'refs/pull') }}
-
   release:
     name: "Publish release"
     runs-on: ubuntu-latest
-    needs: [resolve-version, package]
+    needs: [resolve-version, build]
 
     steps:
       - uses: actions/checkout@v4
