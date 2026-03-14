@@ -116,8 +116,6 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macos-15-intel
-          - windows-2022
     steps:
       - name: Configure git
         run: |
