@@ -21,6 +21,7 @@ env:
   GCLIENT_PY3: 1
   DEPOT_TOOLS_UPDATE: 0
   DEPOT_TOOLS_WIN_TOOLCHAIN: 0
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   resolve-version:
@@ -75,6 +76,9 @@ jobs:
 
           STABLE_REF="$(git tag --points-at HEAD 'flutter/stable/*' | cut -f1 | cut -d/ -f3)"
           BETA_REF="$(git tag --points-at HEAD 'flutter/beta/*' | cut -f1 | cut -d/ -f3)"
+          
+          echo "STABLE_REF=$STABLE_REF"
+          echo "BETA_REF=$BETA_REF"
 
           if test -n "$STABLE_REF"; then
             echo "is-stable=true" >> $GITHUB_OUTPUT
