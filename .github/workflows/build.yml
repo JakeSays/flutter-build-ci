@@ -80,6 +80,8 @@ jobs:
           echo "STABLE_REF=$STABLE_REF"
           echo "BETA_REF=$BETA_REF"
 
+          echo "github.ref" ${{ github.ref }}
+
           if test -n "$STABLE_REF"; then
             echo "is-stable=true" >> $GITHUB_OUTPUT
             echo "is-beta=false" >> $GITHUB_OUTPUT
@@ -98,8 +100,11 @@ jobs:
             echo "channel=stable" >> $GITHUB_OUTPUT
             CHANNEL=stable
           else
-            echo "Could not determine channel."
-            exit 1
+            echo "Could not determine channel, defaulting to stable."
+            echo "is-stable=true" >> $GITHUB_OUTPUT
+            echo "is-beta=false" >> $GITHUB_OUTPUT
+            echo "channel=stable" >> $GITHUB_OUTPUT
+            CHANNEL=stable
           fi
 
           # read the flutter.version file to find the flutter hash
