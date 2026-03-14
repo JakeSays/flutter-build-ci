@@ -64,7 +64,7 @@ enum Bitness {
 }
 
 enum Arch {
-  riscv64.bits64('RISCV64', 'riscv64', 'riscv64'),
+//  riscv64.bits64('RISCV64', 'riscv64', 'riscv64'),
   x64.bits64('X64', 'x64', 'x64'),
   arm.bits32('ARM', 'arm', 'armv7'),
   arm64.bits64('ARM64', 'arm64', 'aarch64');
@@ -98,11 +98,11 @@ enum CPU {
 }
 
 enum Target {
-//   armv7Generic(
-//     arch: Arch.arm,
-//     name: 'armv7-generic',
-//     triple: 'armv7-linux-gnueabihf',
-//   ),
+  armv7Generic(
+    arch: Arch.arm,
+    name: 'armv7-generic',
+    triple: 'armv7-linux-gnueabihf',
+  ),
   aarch64Generic(
     arch: Arch.arm64,
     name: 'aarch64-generic',
@@ -269,7 +269,7 @@ Map<String, Object> genGenSnapshotConfig(
         (runner.os == OS.linux && target.arch == Arch.arm) || runner.arch == Arch.arm,
     kBuildARM64GenSnapshot: runner.os == OS.linux || runner.arch == Arch.arm64,
     kBuildX64GenSnapshot: runner.os == OS.linux || runner.arch == Arch.x64,
-    kBuildRISCV64GenSnapshot: runner.os == OS.linux || runner.arch == Arch.riscv64,
+    kBuildRISCV64GenSnapshot: false,// runner.os == OS.linux || runner.arch == Arch.riscv64,
 
     kARMGenSnapshotPath: runner.os == OS.linux && target.arch == Arch.arm
         ? 'gen_snapshot'
@@ -286,12 +286,12 @@ Map<String, Object> genGenSnapshotConfig(
         : runner.os == OS.windows
             ? 'gen_snapshot/gen_snapshot.exe'
             : 'clang_x64/gen_snapshot',
-    kRISCV64GenSnapshotPath: runner.os == OS.linux && target.arch == Arch.riscv64
-        ? 'gen_snapshot'
-        : runner.os == OS.windows
-            ? 'gen_snapshot/gen_snapshot.exe'
-            : 'clang_riscv64/gen_snapshot',
-  };
+//     kRISCV64GenSnapshotPath: runner.os == OS.linux && target.arch == Arch.riscv64
+//         ? 'gen_snapshot'
+//         : runner.os == OS.windows
+//             ? 'gen_snapshot/gen_snapshot.exe'
+//             : 'clang_riscv64/gen_snapshot',
+   };
 }
 
 Object generateMatrix() {

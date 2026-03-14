@@ -451,7 +451,6 @@ jobs:
             ${{ matrix.build-x64-gen-snapshot && matrix.x64-gen-snapshot-path || '' }} \
             ${{ matrix.build-arm-gen-snapshot && matrix.arm-gen-snapshot-path || '' }} \
             ${{ matrix.build-arm64-gen-snapshot && matrix.arm64-gen-snapshot-path || '' }} \
-            ${{ matrix.build-riscv64-gen-snapshot && matrix.riscv64-gen-snapshot-path || '' }} \
             ${{ matrix.build-universal && 'flutter_embedder.h icudtl.dat' || '' }}
 
       - name: Add flutter.version and dart-sdk.version file
