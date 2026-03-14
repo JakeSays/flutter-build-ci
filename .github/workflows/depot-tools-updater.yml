@@ -2,8 +2,8 @@ name: Update depot_tools
 
 on:
   # Check every monday, 12:00
-  schedule:    
-    - cron: "0 12 * * 1"
+  #schedule:    
+    #- cron: "0 12 * * 1"
 
   push:
     branches: [ main ]
