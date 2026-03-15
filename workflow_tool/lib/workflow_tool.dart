@@ -317,7 +317,7 @@ Object generateMatrix() {
 
     // For the tuned targets, we only build the profile and release mode engine.
     // Doesn't make sense to have a tuned version for a debug build.
-    final flavorsToBuild = target.cpu == CPU.generic ? flavors : [Flavor.profile, Flavor.release];
+    final flavorsToBuild = flavors;// target.cpu == CPU.generic ? flavors : [Flavor.profile, Flavor.release];
 
     for (final flavor in flavorsToBuild) {
       // add the engine build job for that target
