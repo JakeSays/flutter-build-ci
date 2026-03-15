@@ -303,7 +303,7 @@ Object generateMatrix() {
 
   final targets = Target.values;
 
-  final flavors = [Flavor.release];
+  final flavors = [Flavor.debug, Flavor.release];
   final runtimeModes = RuntimeMode.values;
   final aotRuntimeModes = runtimeModes.where((mode) => mode.isAOT).toList();
   final runners = {
