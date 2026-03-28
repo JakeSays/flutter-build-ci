@@ -1,9 +1,9 @@
 name: watch for flutter updates
 
 on:
-  # Check every 15 minutes
-  #schedule:    
-    #- cron: "0 * * * *"
+  # Check twice daily
+  schedule:    
+    - cron: "0 0/12 * * *"
 
   push:
     branches: [ main ]
